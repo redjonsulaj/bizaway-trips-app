@@ -1,0 +1,60 @@
+.sidenav-container {
+  height: 100%;
+  display: flex;
+}
+
+.sidenav {
+  width: 250px;
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container);
+}
+
+.sidenav-header {
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+}
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.toolbar-spacer {
+  flex: 1 1 auto;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.main-content {
+  padding: 24px;
+  min-height: calc(100vh - 120px);
+  background-color: var(--mat-sys-surface);
+}
+
+.active-link {
+  background-color: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+
+  mat-icon {
+    color: var(--mat-sys-on-primary-container);
+  }
+}
+
+.mat-sidenav-content {
+  width: 100%;
+}
