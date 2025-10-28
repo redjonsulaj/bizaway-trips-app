@@ -9,6 +9,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { toast } from 'ngx-sonner';
 import { TripsApiService, TripsService, TripDetailCacheService } from '../../shared/services';
 import { Trip, TripWithScore } from '../../shared/models';
+import { LocaleCurrencyPipe } from '../../shared/pipes/locale-currency.pipe';
+import { LocaleDatePipe } from '../../shared/pipes/locale-date.pipe';
 
 @Component({
   selector: 'app-trip-detail',
@@ -19,6 +21,8 @@ import { Trip, TripWithScore } from '../../shared/models';
     MatCardModule,
     MatChipsModule,
     MatProgressSpinnerModule,
+    LocaleCurrencyPipe,
+    LocaleDatePipe,
   ],
   templateUrl: 'trip-detail.component.html',
   styleUrl: 'trip-detail.component.scss',

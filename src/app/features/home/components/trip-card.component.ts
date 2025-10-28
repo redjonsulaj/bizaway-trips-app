@@ -6,10 +6,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { TripWithScore } from '../../../shared/models';
 import { IntersectionObserverService } from '../../../shared/services/intersection-observer.service';
+import { LocaleCurrencyPipe } from '../../../shared/pipes/locale-currency.pipe';
 
 @Component({
   selector: 'app-trip-card',
-  imports: [CommonModule, MatCardModule, MatChipsModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatChipsModule, MatIconModule, LocaleCurrencyPipe],
   template: `
     <mat-card class="trip-card" (click)="cardClick.emit()">
       <div class="trip-image-container">
@@ -42,7 +43,7 @@ import { IntersectionObserverService } from '../../../shared/services/intersecti
         <div class="trip-details">
           <div class="detail-item">
             <mat-icon>attach_money</mat-icon>
-            <span>{{ trip().price | currency }}</span>
+            <span>{{ trip().price | localeCurrency }}</span>
           </div>
 
           <div class="detail-item">

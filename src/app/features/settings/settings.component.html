@@ -1,0 +1,141 @@
+<div class="settings-container">
+  <header class="page-header">
+    <h1>
+      <mat-icon>settings</mat-icon>
+      Settings
+    </h1>
+    <p>Manage your application preferences and configuration</p>
+  </header>
+
+  <div class="settings-content">
+    <!-- Locale Settings Section -->
+    <mat-card class="settings-section">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>language</mat-icon>
+          Localization
+        </mat-card-title>
+        <mat-card-subtitle>
+          Configure language, currency, and date formatting preferences
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="locale-settings">
+          <mat-form-field appearance="outline" class="locale-select">
+            <mat-label>Locale</mat-label>
+            <mat-select
+              [value]="currentLocale().code"
+              (valueChange)="onLocaleChange($event)"
+            >
+              @for (locale of availableLocales; track locale.code) {
+                <mat-option [value]="locale.code">
+                  {{ locale.label }}
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>public</mat-icon>
+          </mat-form-field>
+
+          <div class="locale-preview">
+            <h4>Preview:</h4>
+            <div class="preview-items">
+              <div class="preview-item">
+                <span class="preview-label">Currency:</span>
+                <span class="preview-value">
+                  {{ 1234.56 | localeCurrency }}
+                </span>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">Date:</span>
+                <span class="preview-value">
+                  {{ previewDate | localeDate:'medium' }}
+                </span>
+              </div>
+              <div class="preview-item">
+                <span class="preview-label">Currency Code:</span>
+                <span class="preview-value">{{ currentLocale().currency }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Vertical Types Section -->
+    <mat-card class="settings-section">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>category</mat-icon>
+          Trip Vertical Types
+        </mat-card-title>
+        <mat-card-subtitle>
+          Manage the types of trips available in the application
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="vertical-types-actions">
+          <button
+            mat-raised-button
+            color="primary"
+            (click)="openAddVerticalTypeDialog()"
+          >
+            <mat-icon>add</mat-icon>
+            Add Vertical Type
+          </button>
+        </div>
+
+        <div class="vertical-types-list">
+          @if (verticalTypes().length === 0) {
+            <div class="empty-state">
+              <mat-icon>category</mat-icon>
+              <p>No vertical types configured</p>
+            </div>
+          } @else {
+            @for (vt of verticalTypes(); track vt.id) {
+              <div class="vertical-type-item" [class.disabled]="!vt.enabled">
+                <div class="vertical-type-header">
+                  <div class="vertical-type-info">
+                    <mat-icon [class.disabled]="!vt.enabled">{{ vt.icon }}</mat-icon>
+                    <div class="vertical-type-details">
+                      <h4>{{ vt.label }}</h4>
+                      <span class="vertical-type-id">ID: {{ vt.id }}</span>
+                    </div>
+                  </div>
+
+                  <div class="vertical-type-actions">
+                    <mat-slide-toggle
+                      [checked]="vt.enabled"
+                      (change)="onToggleVerticalType(vt.id)"
+                      [aria-label]="'Toggle ' + vt.label"
+                    >
+                      {{ vt.enabled ? 'Enabled' : 'Disabled' }}
+                    </mat-slide-toggle>
+
+                    <button
+                      mat-icon-button
+                      [matTooltip]="'Edit ' + vt.label"
+                      (click)="openEditVerticalTypeDialog(vt)"
+                    >
+                      <mat-icon>edit</mat-icon>
+                    </button>
+
+                    <button
+                      mat-icon-button
+                      color="warn"
+                      [matTooltip]="'Delete ' + vt.label"
+                      (click)="onDeleteVerticalType(vt)"
+                    >
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            }
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

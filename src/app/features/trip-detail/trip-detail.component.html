@@ -48,7 +48,7 @@
                 <mat-icon>attach_money</mat-icon>
                 <div class="detail-info">
                   <span class="detail-label">Price</span>
-                  <span class="detail-value">{{ trip()!.price | currency }}</span>
+                  <span class="detail-value">{{ trip()!.price | localeCurrency }}</span>
                 </div>
               </div>
 
@@ -83,7 +83,7 @@
                 <div class="detail-info">
                   <span class="detail-label">Created</span>
                   <span class="detail-value">
-                    {{ trip()!.creationDate | date: 'mediumDate' }}
+                    {{ trip()!.creationDate | localeDate:'medium' }}
                   </span>
                 </div>
               </div>

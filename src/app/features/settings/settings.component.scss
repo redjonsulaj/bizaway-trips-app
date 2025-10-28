@@ -1,0 +1,246 @@
+.settings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.page-header {
+  margin-bottom: 32px;
+
+  h1 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 2.5rem;
+    margin: 0 0 8px 0;
+    color: var(--mat-sys-on-surface);
+
+    mat-icon {
+      font-size: 2.5rem;
+      width: 2.5rem;
+      height: 2.5rem;
+      color: var(--mat-sys-primary);
+    }
+  }
+
+  p {
+    font-size: 1.125rem;
+    color: var(--mat-sys-on-surface-variant);
+    margin: 0;
+  }
+}
+
+.settings-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.settings-section {
+  mat-card-header {
+    mat-card-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+
+      mat-icon {
+        color: var(--mat-sys-primary);
+      }
+    }
+
+    mat-card-subtitle {
+      margin-top: 8px;
+      font-size: 0.9rem;
+    }
+  }
+
+  mat-card-content {
+    padding-top: 24px;
+  }
+}
+
+// Locale Settings
+.locale-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.locale-select {
+  max-width: 400px;
+}
+
+.locale-preview {
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 8px;
+
+  h4 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  .preview-items {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .preview-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .preview-label {
+      font-weight: 500;
+      color: var(--mat-sys-on-surface-variant);
+    }
+
+    .preview-value {
+      font-weight: 600;
+      color: var(--mat-sys-on-surface);
+    }
+  }
+}
+
+// Vertical Types
+.vertical-types-actions {
+  margin-bottom: 24px;
+}
+
+.vertical-types-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vertical-type-item {
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: var(--mat-sys-surface-container-high);
+  }
+
+  &.disabled {
+    opacity: 0.6;
+  }
+}
+
+.vertical-type-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.vertical-type-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+
+  mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--mat-sys-primary);
+
+    &.disabled {
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+}
+
+.vertical-type-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  h4 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+
+  .vertical-type-id {
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface-variant);
+    font-family: monospace;
+  }
+}
+
+.vertical-type-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  p {
+    font-size: 1rem;
+    margin: 0;
+  }
+}
+
+// Advanced Settings
+.advanced-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .settings-container {
+    padding: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .vertical-type-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vertical-type-actions {
+    justify-content: space-between;
+  }
+
+  .advanced-actions {
+    flex-direction: column;
+
+    button {
+      width: 100%;
+    }
+  }
+}

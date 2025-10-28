@@ -5,10 +5,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { TripWithScore } from '../../../shared/models';
+import { LocaleCurrencyPipe } from '../../../shared/pipes/locale-currency.pipe';
 
 @Component({
   selector: 'app-trip-of-the-day',
-  imports: [CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatIconModule],
+  imports: [CommonModule, MatCardModule, MatButtonModule, MatChipsModule, MatIconModule, LocaleCurrencyPipe],
   template: `
     @if (trip()) {
       <mat-card class="trip-of-day-card">
@@ -42,7 +43,7 @@ import { TripWithScore } from '../../../shared/models';
                 <mat-icon>attach_money</mat-icon>
                 <div class="detail-content">
                   <span class="detail-label">Price</span>
-                  <span class="detail-value">{{ trip()!.price | currency }}</span>
+                  <span class="detail-value">{{ trip()!.price | localeCurrency }}</span>
                 </div>
               </div>
 
