@@ -1,0 +1,120 @@
+@if (loading()) {
+  <div class="loading-container">
+    <mat-spinner />
+    <p>Loading trip details...</p>
+  </div>
+} @else if (trip()) {
+  <div class="trip-detail-container">
+    <div class="header-actions">
+      <button mat-raised-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Trips
+      </button>
+    </div>
+
+    <mat-card class="trip-detail-card">
+      <div class="trip-content-wrapper">
+        <!-- Left Side: Image -->
+        <div class="trip-image-section">
+          <img
+            [src]="trip()!.imageUrl"
+            [alt]="trip()!.title"
+            class="trip-main-image"
+          />
+          <div class="score-overlay">
+            <div class="score-badge" [class]="'score-' + tripWithScore()?.scoreTier">
+              <mat-icon>{{ getScoreIcon() }}</mat-icon>
+              <span>{{ tripWithScore()?.scoreTier }}</span>
+              <span class="score-value">Score: {{ tripWithScore()?.score?.toFixed(1) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Info -->
+        <div class="trip-info-section">
+          <mat-card-header>
+            <mat-card-title>{{ trip()!.title }}</mat-card-title>
+            <mat-card-subtitle>{{ trip()!.verticalType | titlecase }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <div class="trip-description">
+              <h3>Description</h3>
+              <p>{{ trip()!.description }}</p>
+            </div>
+
+            <div class="trip-details-grid">
+              <div class="detail-card">
+                <mat-icon>attach_money</mat-icon>
+                <div class="detail-info">
+                  <span class="detail-label">Price</span>
+                  <span class="detail-value">{{ trip()!.price | currency }}</span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>star</mat-icon>
+                <div class="detail-info">
+                  <span class="detail-label">Rating</span>
+                  <span class="detail-value">
+                    {{ trip()!.rating }} / 5.0
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>rate_review</mat-icon>
+                <div class="detail-info">
+                  <span class="detail-label">Reviews</span>
+                  <span class="detail-value">{{ trip()!.nrOfRatings }} reviews</span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>eco</mat-icon>
+                <div class="detail-info">
+                  <span class="detail-label">CO₂ Emissions</span>
+                  <span class="detail-value">{{ trip()!.co2 }} kg</span>
+                </div>
+              </div>
+
+              <div class="detail-card">
+                <mat-icon>calendar_today</mat-icon>
+                <div class="detail-info">
+                  <span class="detail-label">Created</span>
+                  <span class="detail-value">
+                    {{ trip()!.creationDate | date: 'mediumDate' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            @if (trip()!.tags.length) {
+              <div class="tags-section">
+                <h3>Tags</h3>
+                <mat-chip-set>
+                  @for (tag of trip()!.tags; track tag) {
+                    <mat-chip>
+                      <mat-icon>label</mat-icon>
+                      {{ tag }}
+                    </mat-chip>
+                  }
+                </mat-chip-set>
+              </div>
+            }
+          </mat-card-content>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+} @else {
+  <div class="error-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Trip Not Found</h2>
+    <p>The trip you're looking for doesn't exist or has been removed.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>home</mat-icon>
+      Go to Home
+    </button>
+  </div>
+}

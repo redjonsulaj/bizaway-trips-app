@@ -4,9 +4,9 @@
  */
 export interface TripBase {
   id: string;
-  name: string;
+  title: string;
   verticalType: VerticalType;
-  photo: string;
+  thumbnailUrl: string;
 }
 
 /**
@@ -37,10 +37,11 @@ export interface TripEnvironmental {
 export interface TripMetadata {
   creationDate: string;
   description: string;
+  tags: string[];
 }
 
 /**
- * Complete trip interface
+ * Complete trip interface (as returned by API detail endpoint)
  * Following Liskov Substitution Principle - composed of smaller interfaces
  */
 export interface Trip
@@ -48,7 +49,9 @@ export interface Trip
     TripPricing,
     TripRating,
     TripEnvironmental,
-    TripMetadata {}
+    TripMetadata {
+  imageUrl: string;
+}
 
 /**
  * Trip list item - used for displaying trips in lists
@@ -60,6 +63,7 @@ export interface TripListItem
     TripRating,
     TripEnvironmental {
   creationDate: string;
+  tags: string[];
 }
 
 /**
@@ -68,19 +72,14 @@ export interface TripListItem
 export type VerticalType = 'hotel' | 'flight' | 'car_rental' | 'train';
 
 /**
- * Sort criteria for trips
+ * Sort criteria for trips (matching API)
  */
-export type TripSortCriteria =
-  | 'price'
-  | 'creationDate'
-  | 'rating'
-  | 'name'
-  | 'verticalType';
+export type TripSortCriteria = 'title' | 'price' | 'rating' | 'creationDate';
 
 /**
- * Sort order
+ * Sort order (matching API)
  */
-export type SortOrder = 'asc' | 'desc';
+export type SortOrder = 'ASC' | 'DESC';
 
 /**
  * Trip score tiers
@@ -93,4 +92,32 @@ export type ScoreTier = 'average' | 'good' | 'awesome';
 export interface TripWithScore extends TripListItem {
   scoreTier: ScoreTier;
   score: number;
+}
+
+/**
+ * API Query parameters for fetching trips
+ */
+export interface TripsQueryParams {
+  sortBy?: TripSortCriteria;
+  sortOrder?: SortOrder;
+  titleFilter?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  tags?: string;
+  page?: number;
+  limit?: number;
+}
+
+/**
+ * API Response for trips list
+ */
+export interface TripsApiResponse {
+  items: TripListItem[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+  };
 }

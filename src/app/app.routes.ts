@@ -1,10 +1,10 @@
 import { Routes } from '@angular/router';
-import { LayoutComponent } from './core/layout/layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: LayoutComponent,
+    loadComponent: () =>
+      import('./core/layout/layout.component').then((m) => m.LayoutComponent),
     children: [
       {
         path: '',
@@ -15,6 +15,13 @@ export const routes: Routes = [
         path: 'home',
         loadComponent: () =>
           import('./features/home/home.component').then((m) => m.HomeComponent),
+      },
+      {
+        path: 'trip/:id',
+        loadComponent: () =>
+          import('./features/trip-detail/trip-detail.component').then(
+            (m) => m.TripDetailComponent
+          ),
       },
       {
         path: '**',

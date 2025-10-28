@@ -1,4 +1,48 @@
 <div class="home-container">
-  <h1>Trips</h1>
-  <p>Welcome to App Trips! Your trips will be displayed here.</p>
+  <header class="page-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>card_travel</mat-icon>
+        Explore Trips
+      </h1>
+      <p>Discover your next adventure from our curated collection</p>
+    </div>
+
+    @if (!showTripOfDay()) {
+      <button
+        mat-raised-button
+        color="accent"
+        (click)="loadTripOfTheDay()"
+        class="trip-of-day-button"
+      >
+        <mat-icon>wb_sunny</mat-icon>
+        Show Trip of the Day
+      </button>
+    }
+  </header>
+
+  @if (showTripOfDay() && tripOfTheDay()) {
+    <app-trip-of-the-day
+      [trip]="tripOfTheDay()"
+      (viewTrip)="onViewTripDetail($event)"
+    />
+  }
+
+  <app-trip-filters
+    (sortChange)="onSortChange($event)"
+    (filterChange)="onFilterChange($event)"
+    (resetAll)="onResetFilters()"
+  />
+
+  <app-trip-list
+    [trips]="tripsWithScores()"
+    [loading]="loading()"
+    (tripClick)="onViewTripDetail($event)"
+  />
+
+  <app-pagination
+    [pagination]="paginationInfo()"
+    (pageChange)="onPageChange($event)"
+    (limitChange)="onLimitChange($event)"
+  />
 </div>
