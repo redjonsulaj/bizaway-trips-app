@@ -51,7 +51,7 @@ export interface PaginationInfo {
 
           <button
             mat-icon-button
-            [disabled]="pagination()!.currentPage === pagination()!.totalPages"
+            [disabled]="isLastPage()"
             (click)="pageChange.emit(pagination()!.currentPage + 1)"
             aria-label="Next page"
           >
@@ -162,5 +162,13 @@ export class PaginationComponent {
     const p = this.pagination();
     if (!p) return 0;
     return Math.min(p.currentPage * p.itemsPerPage, p.totalItems);
+  }
+
+  protected isLastPage(): boolean {
+    const p = this.pagination();
+    if (!p) return true;
+
+    // If we're on the declared total pages, or if current page items equal limit but we're on last page
+    return p.currentPage >= p.totalPages;
   }
 }

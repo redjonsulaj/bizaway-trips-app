@@ -118,7 +118,9 @@ export class TripsStateService {
    * Sets the items per page limit
    */
   setLimit(limit: number): void {
-    this.limitSignal.set(limit);
+    // Ensure limit doesn't exceed 100
+    const validLimit = Math.min(Math.max(1, limit), 100);
+    this.limitSignal.set(validLimit);
     this.pageSignal.set(1);
   }
 

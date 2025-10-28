@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import {Component, input, output, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -13,9 +13,11 @@ import { TripWithScore } from '../../../shared/models';
       <div class="trip-image-container">
         <img
           mat-card-image
-          [src]="trip().thumbnailUrl"
+          [src]="getImageUrl()"
           [alt]="trip().title"
           class="trip-image"
+          (error)="onImageError()"
+          loading="lazy"
         />
         <div class="score-badge" [class]="'score-' + trip().scoreTier">
           <mat-icon>{{ getScoreIcon() }}</mat-icon>
@@ -173,5 +175,16 @@ export class TripCardComponent {
       default:
         return 'check_circle';
     }
+  }
+
+  protected imageError = signal<boolean>(false);
+  protected readonly fallbackImage = 'https://fastly.picsum.photos/id/454/200/200.jpg?hmac=N13wDge6Ku6Eg_LxRRsrfzC1A4ZkpCScOEp-hH-PwHg';
+
+  protected onImageError(): void {
+    this.imageError.set(true);
+  }
+
+  protected getImageUrl(): string {
+    return this.imageError() ? this.fallbackImage : this.trip().thumbnailUrl;
   }
 }

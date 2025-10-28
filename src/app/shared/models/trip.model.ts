@@ -114,10 +114,7 @@ export interface TripsQueryParams {
  */
 export interface TripsApiResponse {
   items: TripListItem[];
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-  };
+  page: number;
+  limit: number;
+  total: number;
 }

@@ -70,8 +70,13 @@ export class HomeComponent {
         // Use cached response
         const tripsWithScores = this.tripsService.addScoresToTrips(cachedResponse.items);
         this.trips.set(tripsWithScores);
-        this.paginationInfo.set(cachedResponse.pagination);
-        this.loading.set(false);
+        const totalPages = Math.ceil(cachedResponse.total / cachedResponse.limit);
+        this.paginationInfo.set({
+          currentPage: cachedResponse.page,
+          totalPages: totalPages,
+          totalItems: cachedResponse.total,
+          itemsPerPage: cachedResponse.limit
+        });        this.loading.set(false);
         // Don't show toast for cache hits to avoid noise
       } else {
         // No valid cache, fetch from API
@@ -82,8 +87,13 @@ export class HomeComponent {
             this.trips.set(tripsWithScores);
 
             // Update pagination info
-            this.paginationInfo.set(response.pagination);
-
+            const totalPages = Math.ceil(response.total / response.limit);
+            this.paginationInfo.set({
+              currentPage: response.page,
+              totalPages: totalPages,
+              totalItems: response.total,
+              itemsPerPage: response.limit
+            });
             // Cache the response
             try {
               await this.tripsListCacheService.cacheTrips(params, response);

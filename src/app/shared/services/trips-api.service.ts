@@ -35,11 +35,9 @@ export class TripsApiService {
         httpParams = httpParams.set('titleFilter', params.titleFilter);
       }
       if (params.minPrice !== undefined && params.minPrice !== null) {
-        console.error(38, params)
         httpParams = httpParams.set('minPrice', params.minPrice.toString());
       }
       if (params.maxPrice !== undefined && params.maxPrice !== null) {
-        console.error(42, params)
         httpParams = httpParams.set('maxPrice', params.maxPrice.toString());
       }
       if (params.minRating !== undefined && params.minRating !== null) {
