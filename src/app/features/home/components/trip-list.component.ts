@@ -62,6 +62,9 @@ import { TripCardComponent } from './trip-card.component';
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 24px;
       padding: 8px;
+
+      /* Performance optimization: Use CSS containment */
+      contain: layout style paint;
     }
 
     @media (max-width: 768px) {

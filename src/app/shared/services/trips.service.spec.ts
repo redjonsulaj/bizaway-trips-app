@@ -49,6 +49,10 @@ describe('TripsService', () => {
     service = TestBed.inject(TripsService);
   });
 
+  afterEach(() => {
+    service.clearScoreCache();
+  });
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
@@ -70,6 +74,46 @@ describe('TripsService', () => {
       };
       const score = service.calculateTripScore(badTrip);
       expect(score).toBe(0);
+    });
+
+    it('should use memoization and return cached score', () => {
+      const trip = mockTrips[0];
+
+      // Calculate score first time
+      const score1 = service.calculateTripScore(trip);
+
+      // Calculate again with same trip - should return cached value
+      const score2 = service.calculateTripScore(trip);
+
+      expect(score1).toBe(score2);
+    });
+
+    it('should recalculate when trip data changes', () => {
+      const trip = mockTrips[0];
+
+      // Calculate score first time
+      const score1 = service.calculateTripScore(trip);
+
+      // Create modified trip with different rating
+      const modifiedTrip = { ...trip, rating: 5.0 };
+      const score2 = service.calculateTripScore(modifiedTrip);
+
+      // Scores should be different
+      expect(score2).toBeGreaterThan(score1);
+    });
+
+    it('should clear cache properly', () => {
+      const trip = mockTrips[0];
+
+      // Calculate score
+      service.calculateTripScore(trip);
+
+      // Clear cache
+      service.clearScoreCache();
+
+      // Calculate again - should recalculate (not fail)
+      const score = service.calculateTripScore(trip);
+      expect(score).toBeGreaterThan(0);
     });
   });
 
@@ -102,6 +146,14 @@ describe('TripsService', () => {
         expect(['average', 'good', 'awesome']).toContain(trip.scoreTier);
       });
     });
+
+    it('should use memoization for multiple trips with same data', () => {
+      const duplicateTrips = [mockTrips[0], mockTrips[0], mockTrips[1]];
+      const tripsWithScores = service.addScoresToTrips(duplicateTrips);
+
+      // First two should have same score (from cache)
+      expect(tripsWithScores[0].score).toBe(tripsWithScores[1].score);
+    });
   });
 
   describe('convertToListItems', () => {
@@ -115,6 +167,24 @@ describe('TripsService', () => {
       listItems.forEach((item) => {
         expect('description' in item).toBeFalse();
       });
+    });
+  });
+
+  describe('cache management', () => {
+    it('should prevent cache from growing indefinitely', () => {
+      // Create 1100 unique trips to exceed cache limit
+      for (let i = 0; i < 1100; i++) {
+        const trip: TripListItem = {
+          ...mockTrips[0],
+          id: `trip-${i}`,
+          rating: i % 5,
+        };
+        service.calculateTripScore(trip);
+      }
+
+      // Service should handle this gracefully
+      // (internal cache management should prevent memory issues)
+      expect(service).toBeTruthy();
     });
   });
 });

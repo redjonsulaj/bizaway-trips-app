@@ -22,7 +22,7 @@ interface TripCacheData {
 export class TripDetailCacheService {
   private readonly indexedDbService = inject(IndexedDbService);
   private readonly cacheKey = 'trip-details-cache';
-  private readonly maxCacheSize = 5;
+  private readonly maxCacheSize = 50;
   private memoryCache: Map<string, CachedTrip> = new Map();
   private accessOrder: string[] = [];
 

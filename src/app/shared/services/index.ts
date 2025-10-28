@@ -5,3 +5,4 @@ export * from './indexed-db.service';
 export * from './trip-of-the-day-cache.service';
 export * from './trip-detail-cache.service';
 export * from './trips-list-cache.service';
+export * from './intersection-observer.service';

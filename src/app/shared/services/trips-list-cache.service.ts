@@ -23,8 +23,8 @@ interface TripsListCacheData {
 export class TripsListCacheService {
   private readonly indexedDbService = inject(IndexedDbService);
   private readonly cacheKey = 'trips-list-cache';
-  private readonly maxCacheSize = 5;
-  private readonly defaultTtlSeconds = 120; // 120 seconds default TTL
+  private readonly maxCacheSize = 20;
+  private readonly defaultTtlSeconds = 180; // 180 seconds default TTL
 
   private memoryCache: Map<string, CachedTripsResponse> = new Map();
   private accessOrder: string[] = [];

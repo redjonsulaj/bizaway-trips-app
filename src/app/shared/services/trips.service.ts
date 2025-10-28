@@ -14,16 +14,43 @@ import {
   providedIn: 'root',
 })
 export class TripsService {
+  // Memoization cache for score calculations
+  private readonly scoreCache = new Map<string, number>();
+
   /**
    * Calculates a score for a trip based on rating, number of ratings, and CO2
    * Formula: (rating * log(nrOfRatings + 1)) - (co2 / 100)
+   * Uses memoization to avoid recalculating scores for the same trip data
    * @param trip - Trip to calculate score for
    * @returns Calculated score
    */
   calculateTripScore(trip: TripListItem): number {
+    // Create cache key from score-relevant properties
+    const cacheKey = `${trip.id}-${trip.rating}-${trip.nrOfRatings}-${trip.co2}`;
+
+    // Check cache first
+    const cachedScore = this.scoreCache.get(cacheKey);
+    if (cachedScore !== undefined) {
+      return cachedScore;
+    }
+
+    // Calculate score
     const ratingWeight = trip.rating * Math.log(trip.nrOfRatings + 1);
     const co2Penalty = trip.co2 / 100;
-    return Math.max(0, ratingWeight - co2Penalty);
+    const score = Math.max(0, ratingWeight - co2Penalty);
+
+    // Store in cache
+    this.scoreCache.set(cacheKey, score);
+
+    // Prevent cache from growing indefinitely (keep last 1000 entries)
+    if (this.scoreCache.size > 1000) {
+      const firstKey = this.scoreCache.keys().next().value;
+      if (typeof firstKey === "string") {
+        this.scoreCache.delete(firstKey);
+      }
+    }
+
+    return score;
   }
 
   /**
@@ -57,5 +84,12 @@ export class TripsService {
    */
   convertToListItems(trips: Trip[]): TripListItem[] {
     return trips.map(({ description, imageUrl, ...rest }) => rest);
+  }
+
+  /**
+   * Clears the score cache - useful for testing or memory management
+   */
+  clearScoreCache(): void {
+    this.scoreCache.clear();
   }
 }

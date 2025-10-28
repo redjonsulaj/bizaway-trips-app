@@ -1,9 +1,11 @@
-import {Component, input, output, signal} from '@angular/core';
+import { Component, input, output, signal, OnInit, OnDestroy, inject, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
 import { TripWithScore } from '../../../shared/models';
+import { IntersectionObserverService } from '../../../shared/services/intersection-observer.service';
 
 @Component({
   selector: 'app-trip-card',
@@ -11,14 +13,20 @@ import { TripWithScore } from '../../../shared/models';
   template: `
     <mat-card class="trip-card" (click)="cardClick.emit()">
       <div class="trip-image-container">
-        <img
-          mat-card-image
-          [src]="getImageUrl()"
-          [alt]="trip().title"
-          class="trip-image"
-          (error)="onImageError()"
-          loading="lazy"
-        />
+        @if (shouldLoadImage()) {
+          <img
+            mat-card-image
+            [src]="getImageUrl()"
+            [alt]="trip().title"
+            class="trip-image"
+            (error)="onImageError()"
+            loading="lazy"
+          />
+        } @else {
+          <div class="image-placeholder">
+            <mat-icon>image</mat-icon>
+          </div>
+        }
         <div class="score-badge" [class]="'score-' + trip().scoreTier">
           <mat-icon>{{ getScoreIcon() }}</mat-icon>
           <span>{{ trip().scoreTier }}</span>
@@ -82,6 +90,23 @@ import { TripWithScore } from '../../../shared/models';
       width: 100%;
       height: 200px;
       object-fit: cover;
+    }
+
+    .image-placeholder {
+      width: 100%;
+      height: 200px;
+      background-color: var(--mat-sys-surface-container);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 64px;
+        width: 64px;
+        height: 64px;
+        color: var(--mat-sys-on-surface-variant);
+        opacity: 0.3;
+      }
     }
 
     .score-badge {
@@ -159,9 +184,33 @@ import { TripWithScore } from '../../../shared/models';
     }
   `,
 })
-export class TripCardComponent {
+export class TripCardComponent implements OnInit, OnDestroy {
+  private readonly elementRef = inject(ElementRef);
+  private readonly intersectionObserver = inject(IntersectionObserverService);
+  private subscription?: Subscription;
+
   trip = input.required<TripWithScore>();
   cardClick = output<void>();
+
+  protected readonly shouldLoadImage = signal<boolean>(false);
+  protected readonly imageError = signal<boolean>(false);
+  protected readonly fallbackImage = 'https://fastly.picsum.photos/id/454/200/200.jpg?hmac=N13wDge6Ku6Eg_LxRRsrfzC1A4ZkpCScOEp-hH-PwHg';
+
+  ngOnInit(): void {
+    // Observe element and load image when it's near viewport
+    this.subscription = this.intersectionObserver
+      .observe(this.elementRef.nativeElement, { rootMargin: '200px' })
+      .subscribe(isIntersecting => {
+        if (isIntersecting) {
+          this.shouldLoadImage.set(true);
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription?.unsubscribe();
+    this.intersectionObserver.disconnect(this.elementRef.nativeElement);
+  }
 
   protected getScoreIcon(): string {
     const tier = this.trip().scoreTier;
@@ -176,9 +225,6 @@ export class TripCardComponent {
         return 'check_circle';
     }
   }
-
-  protected imageError = signal<boolean>(false);
-  protected readonly fallbackImage = 'https://fastly.picsum.photos/id/454/200/200.jpg?hmac=N13wDge6Ku6Eg_LxRRsrfzC1A4ZkpCScOEp-hH-PwHg';
 
   protected onImageError(): void {
     this.imageError.set(true);
