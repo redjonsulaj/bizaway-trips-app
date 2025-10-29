@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideZonelessChangeDetection } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { IndexedDbService } from './indexed-db.service';
 import {
@@ -20,6 +21,7 @@ describe('SettingsService', () => {
 
     TestBed.configureTestingModule({
       providers: [
+        provideZonelessChangeDetection(),
         SettingsService,
         { provide: IndexedDbService, useValue: indexedDbSpy },
       ],
@@ -231,9 +233,6 @@ describe('SettingsService', () => {
       };
 
       indexedDbService.get.and.returnValue(Promise.resolve(cachedSettings));
-
-      // Create new service instance to trigger loading
-      // const newService = new SettingsService(indexedDbService);
 
       // Wait for async loading
       await new Promise((resolve) => setTimeout(resolve, 100));

@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Trip, TripListItem, TripsQueryParams, TripsApiResponse } from '../models/trip.model';
+import {environment} from '../../../environments/environment';
 
 /**
  * Service responsible for communicating with the Trips API
@@ -12,8 +13,7 @@ import { Trip, TripListItem, TripsQueryParams, TripsApiResponse } from '../model
 })
 export class TripsApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl =
-    'https://iy3ipnv3uc.execute-api.eu-west-1.amazonaws.com/Prod/v1';
+  private readonly apiUrl = environment.apiUrl;
 
   /**
    * Fetches trips from the API with optional query parameters
