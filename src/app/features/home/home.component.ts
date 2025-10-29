@@ -1,17 +1,18 @@
 import { Component, inject, signal, effect, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import {MatButton, MatButtonModule} from '@angular/material/button';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatButton } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 import { toast } from 'ngx-sonner';
 import {
   TripsApiService,
   TripsService,
   TripsStateService,
-  TripOfTheDayCacheService, TripDetailCacheService, TripsListCacheService
+  TripOfTheDayCacheService,
+  TripDetailCacheService,
+  TripsListCacheService
 } from '../../shared/services';
 import { TripWithScore } from '../../shared/models';
-import { TripFiltersComponent, SortChangeEvent, FilterChangeEvent } from './components/trip-filters.component';
+import { TripFiltersComponent } from './components/trip-filters.component';
 import { TripListComponent } from './components/trip-list.component';
 import { TripOfTheDayComponent } from './components/trip-of-the-day.component';
 import { PaginationComponent, PaginationInfo } from './components/pagination.component';
@@ -43,9 +44,9 @@ export class HomeComponent {
   protected readonly paginationInfo = signal<PaginationInfo | null>(null);
   protected readonly tripOfTheDay = signal<TripWithScore | null>(null);
   protected readonly showTripOfDay = signal<boolean>(false);
-  private readonly selectedVerticalType = signal<string | undefined>(undefined);
 
-  // Computed signal for trips with scores
+  protected readonly selectedVerticalType = signal<string | undefined>(undefined);
+  // Computed signal for trips with client-side vertical type filtering
   protected readonly tripsWithScores = computed(() => {
     const allTrips = this.trips();
     const verticalTypeFilter = this.selectedVerticalType();
@@ -87,8 +88,8 @@ export class HomeComponent {
           totalPages: totalPages,
           totalItems: cachedResponse.total,
           itemsPerPage: cachedResponse.limit
-        });        this.loading.set(false);
-        // Don't show toast for cache hits to avoid noise
+        });
+        this.loading.set(false);
       } else {
         // No valid cache, fetch from API
         this.tripsApiService.getTrips(params).subscribe({
@@ -172,46 +173,19 @@ export class HomeComponent {
     }
   }
 
-  protected onSortChange(event: SortChangeEvent): void {
-    this.tripsStateService.setSorting(event.sortBy, event.sortOrder);
-  }
-
-  protected onFilterChange(event: FilterChangeEvent): void {
-    if (event.titleFilter !== undefined) {
-      this.tripsStateService.setTitleFilter(event.titleFilter);
-    }
-
-    if (event.minPrice !== undefined || event.maxPrice !== undefined) {
-      this.tripsStateService.setPriceRange(event.minPrice, event.maxPrice);
-    }
-
-    if (event.minRating !== undefined) {
-      this.tripsStateService.setMinRating(event.minRating);
-    }
-
-    if (event.tags !== undefined) {
-      this.tripsStateService.setTags(event.tags);
-    }
-
-    // Handle client-side vertical type filtering
-    if (event.verticalType !== undefined) {
-      this.selectedVerticalType.set(event.verticalType);
-    }
-  }
-
-  protected onResetFilters(): void {
-    this.tripsStateService.resetFilters();
-    this.selectedVerticalType.set(undefined);
+  protected onVerticalTypeChange(verticalType: string | undefined): void {
+    this.selectedVerticalType.set(verticalType);
   }
 
   protected onPageChange(page: number): void {
-    this.tripsStateService.setPage(page);
-    // Scroll to top when page changes
+    this.tripsStateService.page.set(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   protected onLimitChange(limit: number): void {
-    this.tripsStateService.setLimit(limit);
+    const validLimit = Math.min(Math.max(1, limit), 100);
+    this.tripsStateService.limit.set(validLimit);
+    this.tripsStateService.page.set(1);
   }
 
   protected async onViewTripDetail(trip: TripWithScore): Promise<void> {
@@ -249,6 +223,4 @@ export class HomeComponent {
       this.router.navigate(['/trip', trip.id]);
     }
   }
-
-
 }

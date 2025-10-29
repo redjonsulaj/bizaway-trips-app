@@ -1,4 +1,4 @@
-import {Component, output, signal, OnDestroy, effect, inject} from '@angular/core';
+import {Component, output, OnDestroy, inject, signal} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -9,22 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { TripSortCriteria, SortOrder } from '../../../shared/models';
+import { TripsStateService } from '../../../shared/services/trips-state.service';
 import { SettingsService } from '../../../shared/services/settings.service';
-
-export interface SortChangeEvent {
-  sortBy: TripSortCriteria | undefined;
-  sortOrder: SortOrder;
-}
-
-export interface FilterChangeEvent {
-  titleFilter?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRating?: number;
-  tags?: string;
-  verticalType?: string;
-}
 
 @Component({
   selector: 'app-trip-filters',
@@ -46,12 +32,12 @@ export interface FilterChangeEvent {
           <mat-label>Search trips</mat-label>
           <input
             matInput
-            [(ngModel)]="searchText"
-            (ngModelChange)="onSearchTextChange($event)"
+            [ngModel]="state.titleFilter()"
+            (ngModelChange)="onSearchChange($event)"
             placeholder="Search by title..."
           />
           <mat-icon matPrefix>search</mat-icon>
-          @if (searchText()) {
+          @if (state.titleFilter()) {
             <button
               matSuffix
               mat-icon-button
@@ -65,7 +51,10 @@ export interface FilterChangeEvent {
 
         <mat-form-field>
           <mat-label>Sort by</mat-label>
-          <mat-select [(ngModel)]="sortBy" (ngModelChange)="onSortChange()">
+          <mat-select
+            [(ngModel)]="state.sortBy"
+            (ngModelChange)="onSortChange()"
+          >
             <mat-option [value]="undefined">None</mat-option>
             <mat-option value="title">Title</mat-option>
             <mat-option value="price">Price</mat-option>
@@ -77,9 +66,9 @@ export interface FilterChangeEvent {
         <mat-form-field>
           <mat-label>Order</mat-label>
           <mat-select
-            [(ngModel)]="sortOrder"
+            [(ngModel)]="state.sortOrder"
             (ngModelChange)="onSortChange()"
-            [disabled]="!sortBy()"
+            [disabled]="!state.sortBy()"
           >
             <mat-option value="ASC">Ascending</mat-option>
             <mat-option value="DESC">Descending</mat-option>
@@ -102,7 +91,7 @@ export interface FilterChangeEvent {
             <input
               matInput
               type="number"
-              [(ngModel)]="minPrice"
+              [(ngModel)]="state.minPrice"
               (ngModelChange)="onFilterChange()"
               placeholder="0"
             />
@@ -114,7 +103,7 @@ export interface FilterChangeEvent {
             <input
               matInput
               type="number"
-              [(ngModel)]="maxPrice"
+              [(ngModel)]="state.maxPrice"
               (ngModelChange)="onFilterChange()"
               placeholder="10000"
             />
@@ -123,7 +112,10 @@ export interface FilterChangeEvent {
 
           <mat-form-field>
             <mat-label>Min Rating</mat-label>
-            <mat-select [(ngModel)]="minRating" (ngModelChange)="onFilterChange()">
+            <mat-select
+              [(ngModel)]="state.minRating"
+              (ngModelChange)="onFilterChange()"
+            >
               <mat-option [value]="undefined">Any</mat-option>
               <mat-option [value]="1">1+ Stars</mat-option>
               <mat-option [value]="2">2+ Stars</mat-option>
@@ -136,7 +128,7 @@ export interface FilterChangeEvent {
             <mat-label>Tags</mat-label>
             <input
               matInput
-              [(ngModel)]="tags"
+              [ngModel]="state.tags()"
               (ngModelChange)="onTagsChange($event)"
               placeholder="food, culture, history..."
             />
@@ -149,7 +141,7 @@ export interface FilterChangeEvent {
               <mat-label>Vertical Type</mat-label>
               <mat-select
                 [(ngModel)]="selectedVerticalType"
-                (ngModelChange)="onVerticalTypeChange($event)"
+                (ngModelChange)="verticalTypeChange.emit($event)"
               >
                 <mat-option [value]="undefined">All Types</mat-option>
                 @for (vt of availableVerticalTypes(); track vt.id) {
@@ -232,24 +224,18 @@ export interface FilterChangeEvent {
   `,
 })
 export class TripFiltersComponent implements OnDestroy {
-  sortChange = output<SortChangeEvent>();
-  filterChange = output<FilterChangeEvent>();
-  resetAll = output<void>();
-
-  protected searchText = signal<string>('');
-  protected sortBy = signal<TripSortCriteria | undefined>(undefined);
-  protected sortOrder = signal<SortOrder>('ASC');
-  protected minPrice = signal<number | undefined>(undefined);
-  protected maxPrice = signal<number | undefined>(undefined);
-  protected minRating = signal<number | undefined>(undefined);
-  protected tags = signal<string>('');
+  // Direct access to state service signals
+  protected readonly state = inject(TripsStateService);
   private readonly settingsService = inject(SettingsService);
 
-  // Computed signals
-  protected readonly clientSideFilterEnabled = this.settingsService.clientSideVerticalTypeFilter;
-  protected readonly availableVerticalTypes = this.settingsService.enabledVerticalTypes;
+  // Only vertical type filter needs local state (client-side only)
   protected selectedVerticalType = signal<string | undefined>(undefined);
 
+  // Settings computed signals
+  protected readonly clientSideFilterEnabled = this.settingsService.clientSideVerticalTypeFilter;
+  protected readonly availableVerticalTypes = this.settingsService.enabledVerticalTypes;
+
+  verticalTypeChange = output<string | undefined>();
 
   // Search debouncing
   private searchSubject = new Subject<string>();
@@ -260,32 +246,25 @@ export class TripFiltersComponent implements OnDestroy {
   private tagsSubscription: Subscription;
 
   constructor() {
-    // Set up search debouncing - wait 400ms after user stops typing
+    // Search debouncing - wait 400ms after user stops typing
     this.searchSubscription = this.searchSubject
       .pipe(
-        debounceTime(400), // Wait 400ms after last keystroke
-        distinctUntilChanged() // Only emit if value has changed
+        debounceTime(400),
+        distinctUntilChanged()
       )
       .subscribe((searchValue) => {
         // Check if input contains ONLY whitespace (no actual characters)
         const isOnlyWhitespace = searchValue.trim() === '' && searchValue.length > 0;
 
         if (isOnlyWhitespace) {
-          // User typed only spaces, clear the input field
-          this.searchText.set('');
-          searchValue = ''; // Send empty string to API
+          searchValue = '';
         }
 
-        this.filterChange.emit({
-          titleFilter: searchValue,
-          minPrice: this.minPrice(),
-          maxPrice: this.maxPrice(),
-          minRating: this.minRating(),
-          tags: this.tags(),
-        });
+        this.state.titleFilter.set(searchValue);
+        this.state.resetPage();
       });
 
-    // Set up tags debouncing - wait 400ms after user stops typing
+    // Tags debouncing - wait 400ms after user stops typing
     this.tagsSubscription = this.tagsSubject
       .pipe(
         debounceTime(400),
@@ -295,18 +274,11 @@ export class TripFiltersComponent implements OnDestroy {
         const isOnlyWhitespace = tagsValue.trim() === '' && tagsValue.length > 0;
 
         if (isOnlyWhitespace) {
-          // User typed only spaces, clear the input field
-          this.tags.set('');
           tagsValue = '';
         }
 
-        this.filterChange.emit({
-          titleFilter: this.searchText(),
-          minPrice: this.minPrice(),
-          maxPrice: this.maxPrice(),
-          minRating: this.minRating(),
-          tags: tagsValue,
-        });
+        this.state.tags.set(tagsValue);
+        this.state.resetPage();
       });
   }
 
@@ -316,65 +288,30 @@ export class TripFiltersComponent implements OnDestroy {
     this.tagsSubscription?.unsubscribe();
   }
 
-  protected onSearchTextChange(value: string): void {
-    // Push the search text to the subject
+  protected onSearchChange(value: string): void {
     this.searchSubject.next(value);
   }
 
   protected onTagsChange(value: string): void {
-    // Push the tags text to the subject
     this.tagsSubject.next(value);
   }
 
   protected clearSearch(): void {
-    this.searchText.set('');
-    // Immediately emit the change when clearing
-    this.filterChange.emit({
-      titleFilter: '',
-      minPrice: this.minPrice(),
-      maxPrice: this.maxPrice(),
-      minRating: this.minRating(),
-      tags: this.tags(),
-    });
+    this.state.titleFilter.set('');
+    this.state.resetPage();
   }
 
   protected onSortChange(): void {
-    this.sortChange.emit({
-      sortBy: this.sortBy(),
-      sortOrder: this.sortOrder(),
-    });
+    this.state.resetPage();
   }
 
   protected onFilterChange(): void {
-    this.filterChange.emit({
-      titleFilter: this.searchText(),
-      minPrice: this.minPrice(),
-      maxPrice: this.maxPrice(),
-      minRating: this.minRating(),
-      tags: this.tags(),
-    });
+    this.state.resetPage();
   }
 
   protected resetFilters(): void {
-    this.searchText.set('');
-    this.sortBy.set(undefined);
-    this.sortOrder.set('ASC');
-    this.minPrice.set(undefined);
-    this.maxPrice.set(undefined);
-    this.minRating.set(undefined);
-    this.tags.set('');
+    this.state.resetFilters();
     this.selectedVerticalType.set(undefined);
-    this.resetAll.emit();
-  }
-
-  protected onVerticalTypeChange(value: string | undefined): void {
-    this.filterChange.emit({
-      titleFilter: this.searchText(),
-      minPrice: this.minPrice(),
-      maxPrice: this.maxPrice(),
-      minRating: this.minRating(),
-      tags: this.tags(),
-      verticalType: value,
-    });
+    this.verticalTypeChange.emit(undefined);
   }
 }

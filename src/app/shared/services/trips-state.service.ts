@@ -9,132 +9,70 @@ import { TripsQueryParams, TripSortCriteria, SortOrder } from '../models/trip.mo
   providedIn: 'root',
 })
 export class TripsStateService {
-  private readonly sortBySignal = signal<TripSortCriteria | undefined>(undefined);
-  private readonly sortOrderSignal = signal<SortOrder>('ASC');
-  private readonly titleFilterSignal = signal<string>('');
-  private readonly minPriceSignal = signal<number | undefined>(undefined);
-  private readonly maxPriceSignal = signal<number | undefined>(undefined);
-  private readonly minRatingSignal = signal<number | undefined>(undefined);
-  private readonly tagsSignal = signal<string>('');
-  private readonly pageSignal = signal<number>(1);
-  private readonly limitSignal = signal<number>(10);
+  readonly sortBy = signal<TripSortCriteria | undefined>(undefined);
+  readonly sortOrder = signal<SortOrder>('ASC');
+  readonly titleFilter = signal<string>('');
+  readonly minPrice = signal<number | undefined>(undefined);
+  readonly maxPrice = signal<number | undefined>(undefined);
+  readonly minRating = signal<number | undefined>(undefined);
+  readonly tags = signal<string>('');
+  readonly page = signal<number>(1);
+  readonly limit = signal<number>(10);
 
-  // Computed query params
+  // Computed query params - automatically updates when any signal changes
   readonly queryParams = computed<TripsQueryParams>(() => {
     const params: TripsQueryParams = {
-      page: this.pageSignal(),
-      limit: this.limitSignal(),
+      page: this.page(),
+      limit: this.limit(),
     };
 
-    if (this.sortBySignal()) {
-      params.sortBy = this.sortBySignal();
-      params.sortOrder = this.sortOrderSignal();
+    if (this.sortBy()) {
+      params.sortBy = this.sortBy();
+      params.sortOrder = this.sortOrder();
     }
 
-    if (this.titleFilterSignal()) {
-      params.titleFilter = this.titleFilterSignal();
+    if (this.titleFilter()) {
+      params.titleFilter = this.titleFilter();
     }
 
-    if (this.minPriceSignal() !== undefined) {
-      params.minPrice = this.minPriceSignal();
+    if (this.minPrice() !== undefined) {
+      params.minPrice = this.minPrice();
     }
 
-    if (this.maxPriceSignal() !== undefined) {
-      params.maxPrice = this.maxPriceSignal();
+    if (this.maxPrice() !== undefined) {
+      params.maxPrice = this.maxPrice();
     }
 
-    if (this.minRatingSignal() !== undefined) {
-      params.minRating = this.minRatingSignal();
+    if (this.minRating() !== undefined) {
+      params.minRating = this.minRating();
     }
 
-    if (this.tagsSignal()) {
-      params.tags = this.tagsSignal();
+    if (this.tags()) {
+      params.tags = this.tags();
     }
 
     return params;
   });
 
-  // Read-only signals for components
-  readonly sortBy = this.sortBySignal.asReadonly();
-  readonly sortOrder = this.sortOrderSignal.asReadonly();
-  readonly titleFilter = this.titleFilterSignal.asReadonly();
-  readonly minPrice = this.minPriceSignal.asReadonly();
-  readonly maxPrice = this.maxPriceSignal.asReadonly();
-  readonly minRating = this.minRatingSignal.asReadonly();
-  readonly tags = this.tagsSignal.asReadonly();
-  readonly page = this.pageSignal.asReadonly();
-  readonly limit = this.limitSignal.asReadonly();
-
   /**
-   * Sets the sorting criteria
+   * Helper method to reset page when filters change
+   * Call this after updating any filter signal
    */
-  setSorting(sortBy: TripSortCriteria | undefined, sortOrder: SortOrder = 'ASC'): void {
-    this.sortBySignal.set(sortBy);
-    this.sortOrderSignal.set(sortOrder);
-    this.pageSignal.set(1); // Reset to first page when sorting changes
-  }
-
-  /**
-   * Sets the title filter
-   */
-  setTitleFilter(filter: string): void {
-    this.titleFilterSignal.set(filter);
-    this.pageSignal.set(1); // Reset to first page when filter changes
-  }
-
-  /**
-   * Sets price range filter
-   */
-  setPriceRange(min: number | undefined, max: number | undefined): void {
-    this.minPriceSignal.set(min);
-    this.maxPriceSignal.set(max);
-    this.pageSignal.set(1);
-  }
-
-  /**
-   * Sets minimum rating filter
-   */
-  setMinRating(rating: number | undefined): void {
-    this.minRatingSignal.set(rating);
-    this.pageSignal.set(1);
-  }
-
-  /**
-   * Sets tags filter
-   */
-  setTags(tags: string): void {
-    this.tagsSignal.set(tags);
-    this.pageSignal.set(1);
-  }
-
-  /**
-   * Sets the current page
-   */
-  setPage(page: number): void {
-    this.pageSignal.set(page);
-  }
-
-  /**
-   * Sets the items per page limit
-   */
-  setLimit(limit: number): void {
-    // Ensure limit doesn't exceed 100
-    const validLimit = Math.min(Math.max(1, limit), 100);
-    this.limitSignal.set(validLimit);
-    this.pageSignal.set(1);
+  resetPage(): void {
+    this.page.set(1);
   }
 
   /**
    * Resets all filters and sorting
    */
   resetFilters(): void {
-    this.sortBySignal.set(undefined);
-    this.sortOrderSignal.set('ASC');
-    this.titleFilterSignal.set('');
-    this.minPriceSignal.set(undefined);
-    this.maxPriceSignal.set(undefined);
-    this.minRatingSignal.set(undefined);
-    this.tagsSignal.set('');
-    this.pageSignal.set(1);
+    this.sortBy.set(undefined);
+    this.sortOrder.set('ASC');
+    this.titleFilter.set('');
+    this.minPrice.set(undefined);
+    this.maxPrice.set(undefined);
+    this.minRating.set(undefined);
+    this.tags.set('');
+    this.page.set(1);
   }
 }
