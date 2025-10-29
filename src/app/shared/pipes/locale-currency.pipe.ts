@@ -1,6 +1,5 @@
-import { Pipe, PipeTransform, inject, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Pipe, PipeTransform, inject, OnDestroy } from '@angular/core';
 import { LocaleService } from '../services/locale.service';
-import { Subscription } from 'rxjs';
 
 /**
  * Custom currency pipe that uses the app's locale settings
@@ -12,13 +11,14 @@ import { Subscription } from 'rxjs';
 })
 export class LocaleCurrencyPipe implements PipeTransform, OnDestroy {
   private readonly localeService = inject(LocaleService);
-  private readonly cdr = inject(ChangeDetectorRef);
-  private subscription?: Subscription;
   private lastValue: string = '';
   private lastInput?: number;
+  private lastLocale?: string;
+  private lastDisplay?: 'code' | 'symbol' | 'symbol-narrow';
+  private lastDigitsInfo?: string;
 
   ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
+    // Cleanup if needed
   }
 
   transform(
@@ -30,11 +30,20 @@ export class LocaleCurrencyPipe implements PipeTransform, OnDestroy {
       return '';
     }
 
+    const currentLocale = this.localeService.localeCode();
+
     // Check if we need to recalculate
-    const shouldUpdate = this.lastInput !== value;
+    const shouldUpdate =
+      this.lastInput !== value ||
+      this.lastLocale !== currentLocale ||
+      this.lastDisplay !== display ||
+      this.lastDigitsInfo !== digitsInfo;
 
     if (shouldUpdate) {
       this.lastInput = value;
+      this.lastLocale = currentLocale;
+      this.lastDisplay = display;
+      this.lastDigitsInfo = digitsInfo;
       this.lastValue = this.localeService.formatCurrency(value, display, digitsInfo);
     }
 

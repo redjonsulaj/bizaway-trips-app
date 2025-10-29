@@ -13,7 +13,9 @@ export class LocaleDatePipe implements PipeTransform, OnDestroy {
   private readonly localeService = inject(LocaleService);
   private lastValue: string = '';
   private lastInput?: string | number | Date;
+  private lastLocale?: string;
   private lastFormat?: string;
+  private lastTimezone?: string;
 
   ngOnDestroy(): void {
     // Cleanup if needed
@@ -28,12 +30,20 @@ export class LocaleDatePipe implements PipeTransform, OnDestroy {
       return '';
     }
 
+    const currentLocale = this.localeService.localeCode();
+
     // Check if we need to recalculate
-    const shouldUpdate = this.lastInput !== value || this.lastFormat !== format;
+    const shouldUpdate =
+      this.lastInput !== value ||
+      this.lastLocale !== currentLocale ||
+      this.lastFormat !== format ||
+      this.lastTimezone !== timezone;
 
     if (shouldUpdate) {
       this.lastInput = value;
+      this.lastLocale = currentLocale;
       this.lastFormat = format;
+      this.lastTimezone = timezone;
       this.lastValue = this.localeService.formatDate(value, format, timezone);
     }
 

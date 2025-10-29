@@ -116,6 +116,19 @@
   margin-bottom: 24px;
 }
 
+.client-filter-toggle {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: var(--mat-sys-surface-container);
+  border-radius: 8px;
+
+  .toggle-description {
+    margin: 8px 0 0 0;
+    font-size: 0.875rem;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
 .vertical-types-list {
   display: flex;
   flex-direction: column;

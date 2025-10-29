@@ -29,6 +29,7 @@ export interface LocaleConfig {
 export interface AppSettings {
   verticalTypes: VerticalTypeConfig[];
   locale: LocaleConfig;
+  clientSideVerticalTypeFilter: boolean;
   version: number; // For future migrations
 }
 
@@ -132,5 +133,6 @@ export const AVAILABLE_LOCALES: LocaleConfig[] = [
 export const DEFAULT_SETTINGS: AppSettings = {
   verticalTypes: DEFAULT_VERTICAL_TYPES,
   locale: AVAILABLE_LOCALES[0], // Default to en-US
+  clientSideVerticalTypeFilter: false,
   version: 1,
 };

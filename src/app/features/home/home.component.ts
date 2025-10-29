@@ -43,9 +43,20 @@ export class HomeComponent {
   protected readonly paginationInfo = signal<PaginationInfo | null>(null);
   protected readonly tripOfTheDay = signal<TripWithScore | null>(null);
   protected readonly showTripOfDay = signal<boolean>(false);
+  private readonly selectedVerticalType = signal<string | undefined>(undefined);
 
   // Computed signal for trips with scores
-  protected readonly tripsWithScores = computed(() => this.trips());
+  protected readonly tripsWithScores = computed(() => {
+    const allTrips = this.trips();
+    const verticalTypeFilter = this.selectedVerticalType();
+
+    // Apply client-side vertical type filtering if enabled
+    if (verticalTypeFilter) {
+      return allTrips.filter(trip => trip.verticalType === verticalTypeFilter);
+    }
+
+    return allTrips;
+  });
 
   constructor() {
     // Load trips when query params change
@@ -181,10 +192,16 @@ export class HomeComponent {
     if (event.tags !== undefined) {
       this.tripsStateService.setTags(event.tags);
     }
+
+    // Handle client-side vertical type filtering
+    if (event.verticalType !== undefined) {
+      this.selectedVerticalType.set(event.verticalType);
+    }
   }
 
   protected onResetFilters(): void {
     this.tripsStateService.resetFilters();
+    this.selectedVerticalType.set(undefined);
   }
 
   protected onPageChange(page: number): void {

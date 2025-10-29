@@ -47,6 +47,7 @@ export class SettingsComponent {
   protected readonly currentLocale = this.settingsService.locale;
   protected readonly availableLocales = AVAILABLE_LOCALES;
   protected readonly previewDate = new Date();
+  protected readonly clientSideVerticalTypeFilter = this.settingsService.clientSideVerticalTypeFilter;
 
   /**
    * Handle locale change
@@ -137,6 +138,22 @@ export class SettingsComponent {
         console.error('Error deleting vertical type:', error);
         toast.error('Failed to delete vertical type');
       }
+    }
+  }
+
+  /**
+   * Toggle client-side vertical type filter
+   */
+  protected async onToggleClientSideFilter(): Promise<void> {
+    try {
+      await this.settingsService.toggleClientSideVerticalTypeFilter();
+      const enabled = this.settingsService.clientSideVerticalTypeFilter();
+      toast.success(
+        `Client-side vertical type filtering ${enabled ? 'enabled' : 'disabled'}`
+      );
+    } catch (error) {
+      console.error('Error toggling client-side filter:', error);
+      toast.error('Failed to toggle filter setting');
     }
   }
 }

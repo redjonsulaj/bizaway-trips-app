@@ -1,4 +1,4 @@
-import { Component, output, signal, OnDestroy, effect } from '@angular/core';
+import {Component, output, signal, OnDestroy, effect, inject} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,6 +10,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { TripSortCriteria, SortOrder } from '../../../shared/models';
+import { SettingsService } from '../../../shared/services/settings.service';
 
 export interface SortChangeEvent {
   sortBy: TripSortCriteria | undefined;
@@ -22,6 +23,7 @@ export interface FilterChangeEvent {
   maxPrice?: number;
   minRating?: number;
   tags?: string;
+  verticalType?: string;
 }
 
 @Component({
@@ -140,6 +142,23 @@ export interface FilterChangeEvent {
             />
             <mat-icon matPrefix>label</mat-icon>
           </mat-form-field>
+
+
+          @if (clientSideFilterEnabled()) {
+            <mat-form-field>
+              <mat-label>Vertical Type</mat-label>
+              <mat-select
+                [(ngModel)]="selectedVerticalType"
+                (ngModelChange)="onVerticalTypeChange($event)"
+              >
+                <mat-option [value]="undefined">All Types</mat-option>
+                @for (vt of availableVerticalTypes(); track vt.id) {
+                  <mat-option [value]="vt.id">{{ vt.label }}</mat-option>
+                }
+              </mat-select>
+              <mat-icon matPrefix>category</mat-icon>
+            </mat-form-field>
+          }
         </div>
 
         <div class="filter-actions">
@@ -224,6 +243,13 @@ export class TripFiltersComponent implements OnDestroy {
   protected maxPrice = signal<number | undefined>(undefined);
   protected minRating = signal<number | undefined>(undefined);
   protected tags = signal<string>('');
+  private readonly settingsService = inject(SettingsService);
+
+  // Computed signals
+  protected readonly clientSideFilterEnabled = this.settingsService.clientSideVerticalTypeFilter;
+  protected readonly availableVerticalTypes = this.settingsService.enabledVerticalTypes;
+  protected selectedVerticalType = signal<string | undefined>(undefined);
+
 
   // Search debouncing
   private searchSubject = new Subject<string>();
@@ -337,6 +363,18 @@ export class TripFiltersComponent implements OnDestroy {
     this.maxPrice.set(undefined);
     this.minRating.set(undefined);
     this.tags.set('');
+    this.selectedVerticalType.set(undefined);
     this.resetAll.emit();
+  }
+
+  protected onVerticalTypeChange(value: string | undefined): void {
+    this.filterChange.emit({
+      titleFilter: this.searchText(),
+      minPrice: this.minPrice(),
+      maxPrice: this.maxPrice(),
+      minRating: this.minRating(),
+      tags: this.tags(),
+      verticalType: value,
+    });
   }
 }

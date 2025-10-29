@@ -75,6 +75,17 @@
       </mat-card-header>
 
       <mat-card-content>
+        <div class="client-filter-toggle">
+          <mat-slide-toggle
+            [checked]="clientSideVerticalTypeFilter()"
+            (change)="onToggleClientSideFilter()"
+          >
+            Enable client-side vertical type filtering
+          </mat-slide-toggle>
+          <p class="toggle-description">
+            When enabled, you can filter trips by vertical type in the home page filters
+          </p>
+        </div>
         <div class="vertical-types-actions">
           <button
             mat-raised-button

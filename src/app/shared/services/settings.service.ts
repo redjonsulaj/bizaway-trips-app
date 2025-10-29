@@ -29,6 +29,9 @@ export class SettingsService {
   readonly enabledVerticalTypes = computed(() =>
     this.settingsSignal().verticalTypes.filter((vt) => vt.enabled)
   );
+  readonly clientSideVerticalTypeFilter = computed(() =>
+    this.settingsSignal().clientSideVerticalTypeFilter
+  );
 
   constructor() {
     // Load settings on initialization
@@ -231,5 +234,16 @@ export class SettingsService {
       console.error('Error importing settings:', error);
       throw new Error('Invalid settings JSON');
     }
+  }
+
+  /**
+   * Toggle client-side vertical type filtering
+   */
+  async toggleClientSideVerticalTypeFilter(): Promise<void> {
+    const currentSettings = this.settingsSignal();
+    this.settingsSignal.set({
+      ...currentSettings,
+      clientSideVerticalTypeFilter: !currentSettings.clientSideVerticalTypeFilter,
+    });
   }
 }
