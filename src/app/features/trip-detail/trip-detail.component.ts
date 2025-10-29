@@ -38,6 +38,9 @@ export class TripDetailComponent implements OnInit {
   protected readonly trip = signal<Trip | null>(null);
   protected readonly tripWithScore = signal<TripWithScore | null>(null);
 
+  protected readonly imageError = signal<boolean>(false);
+  protected readonly fallbackImage = 'https://fastly.picsum.photos/id/454/200/200.jpg?hmac=N13wDge6Ku6Eg_LxRRsrfzC1A4ZkpCScOEp-hH-PwHg';
+
   ngOnInit(): void {
     const tripId = this.route.snapshot.paramMap.get('id');
 
@@ -115,5 +118,13 @@ export class TripDetailComponent implements OnInit {
       default:
         return 'check_circle';
     }
+  }
+
+  protected onImageError(): void {
+    this.imageError.set(true);
+  }
+
+  protected getImageUrl(): string {
+    return this.imageError() ? this.fallbackImage : this.trip()!.imageUrl;
   }
 }

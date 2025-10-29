@@ -17,7 +17,9 @@
         <!-- Left Side: Image -->
         <div class="trip-image-section">
           <img
-            [src]="trip()!.imageUrl"
+            [src]="getImageUrl()"
+            (error)="onImageError()"
+            loading="lazy"
             [alt]="trip()!.title"
             class="trip-main-image"
           />
